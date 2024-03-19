@@ -1,6 +1,34 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use List::Util qw(shuffle);
+my %iupac_codes = (
+    A => ['A'],
+    C => ['C'],
+    G => ['G'],
+    T => ['T'],
+    R => ['A', 'G'], # A or G
+    Y => ['C', 'T'], # C or T
+    S => ['G', 'C'], # G or C
+    W => ['A', 'T'], # A or T
+    K => ['G', 'T'], # G or T
+    M => ['A', 'C'], # A or C
+    B => ['C', 'G', 'T'], # C or G or T
+    D => ['A', 'G', 'T'], # A or G or T
+    H => ['A', 'C', 'T'], # A or C or T
+    V => ['A', 'C', 'G'], # A or C or G
+    N => ['A', 'C', 'G', 'T'], # Any base
+);
+sub select_nucleotide {
+    my $iupac_code = shift;
+   $iupac_code = uc($iupac_code); 
+    if (exists $iupac_codes{$iupac_code}) {
+        return (shuffle @{$iupac_codes{$iupac_code}})[0];
+    } else {
+        warn "Invalid IUPAC code: $iupac_code\n";
+        return '';
+    }
+}
 if ( scalar(@ARGV) < 6){
 	print "./simulate_paired_end_reads_fastq_error.pl\n";
 	print "ARGV[0]: Fasta to simulate reads from\n";
@@ -60,7 +88,7 @@ while ( $simulated < $number_of_reads ){
 	print READ2 "@" . "$acc" . "_" . $random_start . "_" . $simulated . "\n";
 	my @quality_scores_1;
 	for(my $i=$random_start;$i<$random_start+$read_length;$i++){
-		my $base = $sequence[$i];
+		my $base = select_nucleotide($sequence[$i]);
 		my $random_number = rand();
 		my $Q = -10*log10($error_rates_per_site[$i]);
 		$Q += 33;
