@@ -64,7 +64,8 @@ while(<FASTA>){
 	if ( $line !~ /^\>/ ){
 		my @spl = split(//,$line);
 		for(my $i=0; $i<scalar(@spl); $i++){
-			push(@sequence,$spl[$i]);
+			my $base = select_nucleotide($spl[$i]);
+			push(@sequence,$base);
 		}
 	}else{
 		my @spl = split(/\>/,$line);
@@ -88,7 +89,7 @@ while ( $simulated < $number_of_reads ){
 	print READ2 "@" . "$acc" . "_" . $random_start . "_" . $simulated . "\n";
 	my @quality_scores_1;
 	for(my $i=$random_start;$i<$random_start+$read_length;$i++){
-		my $base = select_nucleotide($sequence[$i]);
+		my $base = $sequence[$i];
 		my $random_number = rand();
 		my $Q = -10*log10($error_rates_per_site[$i]);
 		$Q += 33;
